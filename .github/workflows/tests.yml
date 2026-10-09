@@ -1,0 +1,41 @@
+name: 离线测试
+
+# 11 套纯 JVM 测试,不需要手机/模拟器 —— 改解析逻辑时最有用
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  offline-tests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 装 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: 装 Android SDK Platform 34(测试要 android.jar 里的 org.json 空壳)
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-34'
+
+      - name: 准备 Gradle 缓存(测试脚本从这里取 Kotlin 编译器 jar)
+        run: ./gradlew :app:compileDebugKotlin --no-daemon
+
+      - name: 跑离线测试
+        shell: pwsh
+        run: ./tools/offline-tests/run-all.ps1
+
+      - name: 汇总结果
+        if: always()
+        shell: pwsh
+        run: |
+          Get-ChildItem tools/offline-tests -Recurse -Filter result.txt | ForEach-Object {
+            Write-Host "--- $($_.Directory.Name) ---"
+            Get-Content $_.FullName -Encoding UTF8 | Select-Object -First 3
+          }
