@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 常见问题与已知限制（README）
+    url: ../../README.md
+    about: 提 issue 前先看这里：农历/重复规则的边界、图片识别误差、以及「项目明确不做的事」。

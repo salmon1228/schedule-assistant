@@ -1,14 +1,27 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+
+// ---- 签名配置 ----
+// 优先用根目录的 keystore.properties(不进仓库,见 keystore.properties.example);
+// 没有就用工程自带的调试签名,这样别人 clone 下来也能直接编译 release 包试玩。
+val keystorePropsFile = rootProject.file("keystore.properties")
+val keystoreProps = Properties().apply {
+    if (keystorePropsFile.exists()) keystorePropsFile.inputStream().use { load(it) }
+}
+
+// -PappIdSuffix=.demo → 装一个独立包名的副本(可以和正式版并存,用来截图/验证 release 包)
+val appIdSuffix = (findProperty("appIdSuffix") as String?) ?: ""
 
 android {
     namespace = "com.sdh.schedule"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.sdh.schedule"
+        applicationId = "com.sdh.schedule$appIdSuffix"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -25,6 +38,14 @@ android {
             keyAlias = "androiddebugkey"
             keyPassword = "android"
         }
+        if (keystoreProps.getProperty("storeFile") != null) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
@@ -32,9 +53,16 @@ android {
             signingConfig = signingConfigs.getByName("localDebug")
         }
         release {
+            // 首个公开版本先不开混淆,确保行为与 debug 一致;熟悉了再打开
+            // (打开时请务必真机回归一遍:设置 → 功能自检)
             isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.getByName("localDebug")
+            signingConfig = if (keystoreProps.getProperty("storeFile") != null) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("localDebug")
+            }
         }
     }
 

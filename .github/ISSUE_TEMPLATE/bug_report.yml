@@ -1,0 +1,100 @@
+name: 问题反馈（Bug）
+description: 报告一个可复现的问题，例如提醒不准时、通知没识别、课表导入错乱
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！填之前建议先跑一遍 App 里的 **设置 → 功能自检**（一键检查 13 项：权限、铃声、数据库、解析示例等），
+        很多「提醒不响 / 不识别」的问题在那里就能看出原因。
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 问题描述
+      description: 清楚地说一下发生了什么，以及你预期它应该怎样。
+      placeholder: 例如：日程设在 8:00，但 8:20 才响提醒，而且通知栏没有出现。
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 一步一步写，能让别人照着做出来。能稳定复现的问题最好修。
+      placeholder: |
+        1. 打开「日程」页
+        2. 点右下角「+」→ 手动新建日程
+        3. 时间设为 ...
+        4. 到点后观察到 ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+      description: 你认为正确的行为是什么。
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: 手机型号与系统版本
+      description: 项目主要面向小米 HyperOS，但其它机型同样欢迎反馈。系统版本在「设置 → 关于手机」里看。
+      placeholder: 例如：小米 14 / HyperOS 2.0（Android 15）；或 Pixel 7 / Android 14
+    validations:
+      required: true
+
+  - type: input
+    id: app-version
+    attributes:
+      label: App 版本 / 安装方式
+      description: 调试包还是自己编译的；如果是自己编译的，写一下 commit 或分支。
+      placeholder: 例如：v1.0 调试包（app-debug.apk 覆盖安装）/ 自己编译的 master
+    validations:
+      required: true
+
+  - type: dropdown
+    id: self-check
+    attributes:
+      label: 是否已跑过「设置 → 功能自检」？结果如何？
+      description: 自检会逐条显示「通过 / 警告」，请把相关那几行结果也贴到下面的日志里。
+      options:
+        - 已跑，且全部通过
+        - 已跑，但有警告
+        - 没跑过
+    validations:
+      required: true
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: 相关模块
+      description: 问题最可能出在哪一块？
+      options:
+        - 日程创建与提醒
+        - 通知自动识别
+        - 课程表导入（.ics）
+        - 课程表截图识别
+        - 待办
+        - 月历与节假日
+        - 其它
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志或截图
+      description: |
+        可以直接用 **设置 → 功能自检** 里的信息（各项结果、数据库体积/日志条数）。
+        其它有用的：「导入日志」（原文 / 引擎 / 结果）、报错文字、截图或录屏。
+        **请先删掉自己的隐私内容**（手机号、地址、聊天原文、API Key）。
+      render: text
+      placeholder: 把自检结果、导入日志或截图链接贴在这里；截图可以直接拖进输入框。
+    validations:
+      required: false

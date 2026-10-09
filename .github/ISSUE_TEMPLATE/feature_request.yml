@@ -1,0 +1,40 @@
+name: 功能建议
+description: 提一个想加的功能或想改的行为
+title: "[建议] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提之前建议先看一眼 README 的 **已知限制** 和 **项目明确不做的事**
+        （不做爬教务系统、不做短信提醒、不引入 Room/Hilt/Retrofit 这类重型框架）。
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 想解决什么问题
+      description: 先说场景和痛点，再说功能。有具体例子最好。
+      placeholder: 例如：群里通知只写「下周三交材料」，识别出来的日程时间不对，我每次都要手改。
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 期望的用法
+      description: 你希望在界面上怎么操作、得到什么结果；有类似 App 的做法也可以贴出来。
+    validations:
+      required: true
+
+  - type: dropdown
+    id: will-pr
+    attributes:
+      label: 是否愿意自己提 PR？
+      description: 愿意的话可以看 CONTRIBUTING.md（环境、编译、离线测试怎么跑）。
+      options:
+        - 愿意，我可以提 PR
+        - 可以试，但需要一些指点
+        - 不了，只提建议
+    validations:
+      required: true
