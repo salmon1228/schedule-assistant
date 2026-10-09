@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 通知栏里显示的大图标(彩色,不是状态栏那种纯白小图标) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <path
+        android:fillColor="#4361EE"
+        android:pathData="M20,4h68a16,16 0 0 1 16,16v68a16,16 0 0 1 -16,16h-68a16,16 0 0 1 -16,-16v-68a16,16 0 0 1 16,-16z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M36,24h5v12h-5z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M67,24h5v12h-5z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M26,32h56a4,4 0 0 1 4,4v46a4,4 0 0 1 -4,4h-56a4,4 0 0 1 -4,-4v-46a4,4 0 0 1 4,-4z" />
+
+    <path
+        android:fillColor="#2E4BC6"
+        android:pathData="M22,36a4,4 0 0 1 4,-4h56a4,4 0 0 1 4,4v10h-64z" />
+
+    <path
+        android:fillColor="#4361EE"
+        android:pathData="M32,54h10v10h-10z" />
+    <path
+        android:fillColor="#9AA7D9"
+        android:pathData="M49,54h10v10h-10z" />
+    <path
+        android:fillColor="#9AA7D9"
+        android:pathData="M66,54h10v10h-10z" />
+    <path
+        android:fillColor="#9AA7D9"
+        android:pathData="M32,70h10v10h-10z" />
+    <path
+        android:fillColor="#4361EE"
+        android:pathData="M49,70h10v10h-10z" />
+    <path
+        android:fillColor="#9AA7D9"
+        android:pathData="M66,70h10v10h-10z" />
+</vector>

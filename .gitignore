@@ -1,0 +1,44 @@
+﻿# ---- 本地开发脚手架(含真机数据:课表 DB 快照、通知日志、截图)----
+_env/
+_promo/
+进度与待办.md
+
+# ---- Android / Gradle ----
+.gradle/
+build/
+app/build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+*.log
+*.hprof
+
+# ---- 签名与密钥(绝对不能进仓库)----
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+
+# ---- 本机数据 / 备份 ----
+*.db
+*.db-shm
+*.db-wal
+backup-check.json
+
+# ---- IDE ----
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ---- 测试产物 ----
+tools/offline-tests/**/out/
+tools/offline-tests/**/result.txt
+

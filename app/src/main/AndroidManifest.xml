@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 通知与提醒 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <!-- 闹钟提醒要在锁屏上全屏弹出,Android 14+ 必须声明此权限 -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- 大模型解析(可选功能,不配置 Key 时全程离线) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- 读取通知来源 App 的名称(只需要能看见桌面应用即可,不申请 QUERY_ALL_PACKAGES) -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application
+        android:name=".App"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ScheduleAssistant"
+        tools:targetApi="34">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 分享文字/图片进来即可解析成日程 -->
+        <activity
+            android:name=".ShareActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="识别为日程"
+            android:theme="@style/Theme.ScheduleAssistant">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+            <!-- 文档:PDF / Word / Excel / PPT / 纯文本 都能分享过来解析 -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/pdf" />
+                <data android:mimeType="application/msword" />
+                <data android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+                <data android:mimeType="application/vnd.ms-excel" />
+                <data android:mimeType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                <data android:mimeType="application/vnd.ms-powerpoint" />
+                <data android:mimeType="application/vnd.openxmlformats-officedocument.presentationml.presentation" />
+                <data android:mimeType="text/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
+        <!-- 闹钟提醒的全屏响铃页 -->
+        <activity
+            android:name=".alarm.AlarmActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:showOnLockScreen="true"
+            android:showWhenLocked="true"
+            android:taskAffinity=".alarm"
+            android:theme="@style/Theme.ScheduleAssistant"
+            android:turnScreenOn="true" />
+
+        <!-- 通知监听:自动从别的 App 的通知里生成日程 -->
+        <service
+            android:name=".notify.ScheduleNotificationListener"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!-- 拍照识别时把照片临时给相机 App 写 -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- 提醒触发 -->
+        <receiver
+            android:name=".alarm.ReminderReceiver"
+            android:exported="false" />
+
+        <!-- 通知栏按钮:稍后提醒 / 完成 / 关闭闹钟 / 候选日程确认 -->
+        <receiver
+            android:name=".alarm.ActionReceiver"
+            android:exported="false" />
+
+        <!-- 上课提醒:到点发通知 -->
+        <receiver
+            android:name=".alarm.CourseReminderReceiver"
+            android:exported="false" />
+
+        <!-- 每天 00:05 续排当天的课 -->
+        <receiver
+            android:name=".alarm.CourseDayReceiver"
+            android:exported="false" />
+
+        <!--
+          诊断广播:只读自检 / 触发一条测试通知,方便用 adb 验证(不改动任何数据)
+            adb shell am broadcast -a com.sdh.schedule.action.SELF_CHECK -n com.sdh.schedule/.alarm.DiagReceiver
+            adb shell am broadcast -a com.sdh.schedule.action.TEST_REMINDER -n com.sdh.schedule/.alarm.DiagReceiver
+        -->
+        <receiver
+            android:name=".alarm.DiagReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.sdh.schedule.action.SELF_CHECK" />
+                <action android:name="com.sdh.schedule.action.TEST_REMINDER" />
+                <action android:name="com.sdh.schedule.action.TEST_SUGGESTION" />
+                <action android:name="com.sdh.schedule.action.CLEAN_DIAG" />
+                <action android:name="com.sdh.schedule.action.EXPORT_BACKUP" />
+                <action android:name="com.sdh.schedule.action.IMPORT_BACKUP" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 开机 / 更新 / 改时间后重排提醒 -->
+        <receiver
+            android:name=".alarm.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

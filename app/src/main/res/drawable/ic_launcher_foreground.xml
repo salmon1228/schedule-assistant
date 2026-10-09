@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 自适应图标的前景层:日历图形只占中间安全区(72/108),四周留白给系统裁切 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 挂环 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M42,30h4v10h-4z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M62,30h4v10h-4z" />
+
+    <!-- 日历主体 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M34,36h40a3,3 0 0 1 3,3v33a3,3 0 0 1 -3,3h-40a3,3 0 0 1 -3,-3v-33a3,3 0 0 1 3,-3z" />
+
+    <!-- 表头 -->
+    <path
+        android:fillColor="#2E4BC6"
+        android:pathData="M31,39a3,3 0 0 1 3,-3h40a3,3 0 0 1 3,3v7h-46z" />
+
+    <!-- 日期格子 -->
+    <path
+        android:fillColor="#4361EE"
+        android:pathData="M37,51h8v8h-8z" />
+    <path
+        android:fillColor="#9AA7D9"
+        android:pathData="M50,51h8v8h-8z" />
+    <path
+        android:fillColor="#9AA7D9"
+        android:pathData="M63,51h8v8h-8z" />
+    <path
+        android:fillColor="#9AA7D9"
+        android:pathData="M37,63h8v8h-8z" />
+    <path
+        android:fillColor="#4361EE"
+        android:pathData="M50,63h8v8h-8z" />
+    <path
+        android:fillColor="#9AA7D9"
+        android:pathData="M63,63h8v8h-8z" />
+</vector>
