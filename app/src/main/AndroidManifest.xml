@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -15,10 +15,18 @@
 
     <!-- 大模型解析(可选功能,不配置 Key 时全程离线) -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 实时听写:录麦克风 + 对应类型的前台服务 -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- 读取通知来源 App 的名称(只需要能看见桌面应用即可,不申请 QUERY_ALL_PACKAGES) -->
     <queries>
+        <!-- Android 11+ 包可见性:不加这句 SpeechRecognizer.isRecognitionAvailable 会返回 false -->
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
@@ -169,6 +177,11 @@
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
+        <service
+            android:name=".live.LiveService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
     </application>
 
 </manifest>
+

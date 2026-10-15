@@ -1,4 +1,4 @@
-package com.sdh.schedule.ui
+﻿package com.sdh.schedule.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -135,6 +135,7 @@ fun AppRoot(navTarget: NavTarget? = null, onNavHandled: () -> Unit = {}) {
     var showSuggestions by remember { mutableStateOf(false) }
     var showTimetableSettings by remember { mutableStateOf(false) }
     var showSelfCheck by remember { mutableStateOf(false) }
+    var showLive by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     /** 日程页的两种视图:0 = 列表(默认),1 = 月历 */
     var agendaView by remember { mutableStateOf(0) }
@@ -162,7 +163,7 @@ fun AppRoot(navTarget: NavTarget? = null, onNavHandled: () -> Unit = {}) {
     val inSubScreen = creating || editTarget != null || creatingNote || editNote != null ||
         creatingCourse || editCourse != null || showWizard || showSuggestions ||
         showTimetableSettings || showSelfCheck || creatingTodo || editTodo != null ||
-        showSettings || showCourseImport
+        showSettings || showCourseImport || showLive
 
     // 返回手势:子页面先返回上一级,不在「日程」页时先回到「日程」页
     BackHandler(enabled = !inSubScreen && tab != 0) { tab = 0 }
@@ -217,6 +218,11 @@ fun AppRoot(navTarget: NavTarget? = null, onNavHandled: () -> Unit = {}) {
 
     if (showSelfCheck) {
         SelfCheckScreen(onBack = { showSelfCheck = false })
+        return
+    }
+
+    if (showLive) {
+        LiveAssistantScreen(onBack = { showLive = false })
         return
     }
 
@@ -312,6 +318,7 @@ fun AppRoot(navTarget: NavTarget? = null, onNavHandled: () -> Unit = {}) {
                         onOpenSuggestions = { showSuggestions = true },
                         onOpenSettings = { showSettings = true },
                         onSwitchToMonth = { agendaView = 1 },
+                        onOpenLive = { showLive = true },
                         onEdit = { editTarget = it }
                     )
                 }
@@ -383,6 +390,7 @@ private fun AgendaScreen(
     onOpenSuggestions: () -> Unit,
     onOpenSettings: () -> Unit,
     onSwitchToMonth: () -> Unit,
+    onOpenLive: () -> Unit,
     onEdit: (Event) -> Unit
 ) {
     val context = LocalContext.current
@@ -440,6 +448,13 @@ private fun AgendaScreen(
                 // 月历视图切换
                 androidx.compose.material3.IconButton(onClick = onSwitchToMonth) {
                     Icon(Icons.Default.DateRange, contentDescription = "月历视图")
+                }
+                // 实时听写·随问随答
+                androidx.compose.material3.IconButton(onClick = onOpenLive) {
+                    Icon(
+                        androidx.compose.ui.res.painterResource(com.sdh.schedule.R.drawable.ic_mic),
+                        contentDescription = "实时听写"
+                    )
                 }
                 // 设置入口(从底部导航挪到这里)
                 androidx.compose.material3.IconButton(onClick = onOpenSettings) {
@@ -931,5 +946,7 @@ private fun DayCell(
         }
     }
 }
+
+
 
 

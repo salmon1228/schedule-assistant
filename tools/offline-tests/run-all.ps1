@@ -5,7 +5,7 @@ $ErrorActionPreference = "Continue"
 $here = $PSScriptRoot
 $names = @(
     "parser-test", "recur-test", "holiday-test", "course-test", "todo-test",
-    "cal-test", "migrate-test", "course-text-test", "grid-test", "color-test", "ics-test"
+    "cal-test", "migrate-test", "course-text-test", "grid-test", "color-test", "ics-test", "live-test"
 )
 $pass = 0; $fail = 0
 foreach ($n in $names) {
@@ -39,4 +39,5 @@ Write-Host ""
 Write-Host ("=" * 60)
 Write-Host "通过 $pass 套,失败 $fail 套"
 if ($fail -gt 0) { exit 1 }
+
 
