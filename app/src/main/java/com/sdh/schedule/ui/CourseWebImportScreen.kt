@@ -1,4 +1,4 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+﻿@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 
 package com.sdh.schedule.ui
 
@@ -54,6 +54,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -217,11 +218,15 @@ fun CourseWebImportScreen(
         }
 
         // ---- 网页:独占剩余空间 ----
+        // 注意两件事:
+        //  ① 不要在这里写 heightIn(min=...) —— weight(1f) 上叠加最小高度会把上面几行挤成 0 高度
+        //  ② 必须 clipToBounds():WebView 是原生 View,interop 时可能按窗口尺寸测量而**溢出**
+        //     到工具栏上面(实测:工具栏节点在树上、位置也对,但被白色网页盖住看不见)✅
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .heightIn(min = 200.dp)
+                .clipToBounds()
         ) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
@@ -451,3 +456,4 @@ private const val EXTRACT_JS = """
   }
 })()
 """
+
