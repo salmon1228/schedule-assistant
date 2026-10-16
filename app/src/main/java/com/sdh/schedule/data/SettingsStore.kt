@@ -1,4 +1,4 @@
-﻿package com.sdh.schedule.data
+package com.sdh.schedule.data
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -127,6 +127,11 @@ class SettingsStore(context: Context) {
     var builtinFilter: Boolean
         get() = bool(K_BUILTIN_FILTER, true)
         set(v) = edit { putBoolean(K_BUILTIN_FILTER, v) }
+
+    /** 学校教务系统的网址(内置浏览器导入课表时用,记住上次填的) */
+    var eduSystemUrl: String
+        get() = str(K_EDU_URL, "")
+        set(v) = edit { putString(K_EDU_URL, v.trim()) }
 
 
     /**
@@ -296,10 +301,11 @@ class SettingsStore(context: Context) {
         private const val K_DEF_ACCOUNT = "default_account"
         private const val K_WIZARD = "wizard_done"
         private const val K_DARK = "dark_mode"
+        private const val K_EDU_URL = "edu_system_url"
         private const val K_BUILTIN_FILTER = "builtin_filter"
         private const val K_TODO_CHAT_ONLY = "todo_chat_only"
         private const val K_TODO_DAILY_CAP = "todo_daily_cap"
-        private const val K_EDU_URL = "edu_system_url"
         private const val K_EDU_DESKTOP = "edu_desktop_mode"
     }
 }
+

@@ -1,4 +1,4 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+﻿@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 
 package com.sdh.schedule.ui
 
@@ -63,7 +63,8 @@ import kotlinx.coroutines.withContext
 @Composable
 fun CourseImportSheet(
     onDismiss: () -> Unit,
-    onDone: (String) -> Unit
+    onDone: (String) -> Unit,
+    onOpenWeb: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -293,6 +294,45 @@ fun CourseImportSheet(
                 ImportChip("粘贴文字") { showTextInput = true }
             }
             Spacer(Modifier.height(10.dp))
+            // 教务系统网页导入(WebView 配置参考 WakeUp 逆向结果:必须允许弹窗 + 桌面 UA)
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onDismiss()
+                        onOpenWeb()
+                    }
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "从学校教务系统导入(内置浏览器)",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = TextPrimary
+                        )
+                        Text(
+                            "在 App 里打开学校教务系统,你自己登录 → 打开课表页 → 一键提取。" +
+                                "⚠️ 学校若走 WebVPN,可能仍打不开;那就用上面的「文件」或「相册图片」",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextSecondary
+                        )
+                    }
+                    Icon(
+                        Icons.Default.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(10.dp))
             // WakeUp 备份文件导入:格式确定,能 100% 还原(最准的一条路)
             Surface(
                 shape = RoundedCornerShape(12.dp),
@@ -472,3 +512,4 @@ private fun readCourseFile(context: android.content.Context, uri: Uri): CourseFi
         status = if (r.courses.isEmpty()) r.note else "识别到 ${r.courses.size} 门课 · ${r.note}"
     )
 }
+

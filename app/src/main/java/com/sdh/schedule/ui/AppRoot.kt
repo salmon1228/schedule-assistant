@@ -1,4 +1,4 @@
-﻿package com.sdh.schedule.ui
+package com.sdh.schedule.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -136,6 +136,7 @@ fun AppRoot(navTarget: NavTarget? = null, onNavHandled: () -> Unit = {}) {
     var showTimetableSettings by remember { mutableStateOf(false) }
     var showSelfCheck by remember { mutableStateOf(false) }
     var showLive by remember { mutableStateOf(false) }
+    var showCourseWeb by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     /** 日程页的两种视图:0 = 列表(默认),1 = 月历 */
     var agendaView by remember { mutableStateOf(0) }
@@ -223,6 +224,17 @@ fun AppRoot(navTarget: NavTarget? = null, onNavHandled: () -> Unit = {}) {
 
     if (showLive) {
         LiveAssistantScreen(onBack = { showLive = false })
+        return
+    }
+
+    if (showCourseWeb) {
+        CourseWebImportScreen(
+            onBack = { showCourseWeb = false },
+            onDone = { msg ->
+                showCourseWeb = false
+                scope.launch { snackbarHostState.showSnackbar(msg) }
+            }
+        )
         return
     }
 
@@ -375,6 +387,7 @@ fun AppRoot(navTarget: NavTarget? = null, onNavHandled: () -> Unit = {}) {
                 showCourseImport = false
                 scope.launch { snackbarHostState.showSnackbar(msg) }
             },
+            onOpenWeb = { showCourseWeb = true }
         )
     }
 }
@@ -946,6 +959,7 @@ private fun DayCell(
         }
     }
 }
+
 
 
 
