@@ -1,4 +1,4 @@
-﻿package com.sdh.schedule.data
+package com.sdh.schedule.data
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -210,7 +210,14 @@ class SettingsStore(context: Context) {
         get() = int(K_SLOT_DURATION, 45)
         set(v) = edit { putInt(K_SLOT_DURATION, v.coerceIn(10, 180)) }
 
-    /** 解析节次时间;为空或格式不对时回退默认 */
+    /**
+     * 解析节次时间;为空或格式不对时回退默认。
+     *
+     * ⚠️ 若「固定上课时长」开着([slotFixedDuration]),就用 **开始时间 + 每节时长**
+     * 推算出结束时间,不信任存储里的结束时间 —— 因为早期从 .ics 导入时算出的
+     * 结束时间有偏差(第2节 09:10-10:00 实际应为 09:55 等),而且这份脏数据
+     * 会一直被课表网格直接显示出来。开始时间是准的,所以以它为准最稳。
+     */
     fun slotList(): List<Pair<LocalTime, LocalTime>> {
         val list = slotTimes.split(',').mapNotNull { item ->
             val parts = item.trim().split('-')
@@ -218,8 +225,7 @@ class SettingsStore(context: Context) {
             val s = parseTime(parts[0])
             val e = parseTime(parts[1])
             if (s == null || e == null) null else s to e
-        }
-        return list.ifEmpty {
+        }.ifEmpty {
             DEFAULT_SLOT_TIMES.split(',').mapNotNull { item ->
                 val parts = item.trim().split('-')
                 if (parts.size != 2) return@mapNotNull null
@@ -227,6 +233,10 @@ class SettingsStore(context: Context) {
                 if (s == null || e == null) null else s to e
             }
         }
+        return if (slotFixedDuration) {
+            val d = slotDurationMinutes.toLong()
+            list.map { (s, _) -> s to s.plusMinutes(d) }
+        } else list
     }
 
     /** 上课前自动提醒总开关 */

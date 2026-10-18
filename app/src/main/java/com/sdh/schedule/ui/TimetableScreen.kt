@@ -1,4 +1,4 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+﻿@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 
 package com.sdh.schedule.ui
 
@@ -45,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -154,19 +155,17 @@ fun TimetableScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontWeight = FontWeight.Medium
                                 )
+                                // 每一节都标出「开始 / 结束」(对照 WakeUp 课表:这样时间一眼看全)
                                 Text(
                                     text = "%02d:%02d".format(start.hour, start.minute).take(5),
                                     fontSize = 9.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                // 最后一节额外标出「结束时间」,否则看着像课表只到 19:55
-                                if (index == slots.lastIndex) {
-                                    Text(
-                                        text = "%02d:%02d".format(end.hour, end.minute).take(5),
-                                        fontSize = 9.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                                    )
-                                }
+                                Text(
+                                    text = "%02d:%02d".format(end.hour, end.minute).take(5),
+                                    fontSize = 9.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                )
                             }
                         }
                     }
@@ -218,11 +217,22 @@ private fun CourseBlock(
 ) {
     val color = courseColorOf(course)
     // 非本周:整体半透明(和 WakeUp 那种「非本周」效果一致,一眼能看出这周不用去上)
-    val blockAlpha = if (activeThisWeek) 0.16f else 0.07f
-    val textAlpha = if (activeThisWeek) 1f else 0.45f
+    //
+    // 配色对照 WakeUp:本周 = **满色彩色底 + 白色文字**;非本周 = 很淡的底 + 灰色文字。
+    // 文字色按背景亮度自动选(亮底用深灰、暗底用白),这样不管哪门课取到什么颜色都清晰。
+    // (之前试过"满色 + 同色系深色文字",对比度太差,已改)
+    val active = activeThisWeek
+    val bg = if (active) color else color.copy(alpha = 0.14f)
+    val onBg: androidx.compose.ui.graphics.Color = if (active) {
+        val lum = color.luminance()
+        if (lum > 0.55f) androidx.compose.ui.graphics.Color(0xFF1F2937)
+        else androidx.compose.ui.graphics.Color.White
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
     Surface(
         shape = RoundedCornerShape(6.dp),
-        color = color.copy(alpha = blockAlpha),
+        color = bg,
         modifier = Modifier
             .fillMaxWidth()
             .height(heightDp.dp)
@@ -233,24 +243,24 @@ private fun CourseBlock(
                 text = course.name.ifBlank { "课程" },
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Medium,
-                color = color.copy(alpha = textAlpha),
+                color = if (active) onBg else onBg.copy(alpha = 0.75f),
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
             if (course.location.isNotBlank()) {
                 Text(
-                    text = course.location,
+                    text = "@" + course.location,
                     fontSize = 9.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = textAlpha),
+                    color = if (active) onBg.copy(alpha = 0.85f) else onBg.copy(alpha = 0.6f),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            if (!activeThisWeek) {
+            if (!active) {
                 Text(
                     text = "非本周",
                     fontSize = 8.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = textAlpha),
+                    color = onBg.copy(alpha = 0.6f),
                     maxLines = 1
                 )
             }
@@ -668,6 +678,7 @@ fun TimetableSettingsScreen(onBack: () -> Unit) {
         Spacer(Modifier.height(40.dp))
     }
 }
+
 
 
 
