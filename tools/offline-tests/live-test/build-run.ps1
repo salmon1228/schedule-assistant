@@ -28,6 +28,7 @@ $ann = Find-Jar "org.jetbrains\annotations" "23.0.0" "annotations-23.0.0.jar"
 $cp = (@($kc, $std, $tro, $ann) -join ";")
 $srcs = @(
     (Join-Path $root "app\src\main\java\com\sdh\schedule\live\QuestionDetector.kt"),
+    (Join-Path $root "app\src\main\java\com\sdh\schedule\util\TextSimilarity.kt"),
     (Join-Path $here "LiveTest.kt")
 )
 $out = Join-Path $here "out"
@@ -38,6 +39,7 @@ Write-Output "=== compile ==="
 if ($LASTEXITCODE -ne 0) { Write-Output "COMPILE FAILED"; exit 1 }
 Write-Output "=== run ==="
 & "$jdk\bin\java.exe" "-Dfile.encoding=UTF-8" "-DprojectRoot=$root" -cp "$out;$std" LiveTestKt 2>&1 | Out-String | Write-Output
+
 
 
 

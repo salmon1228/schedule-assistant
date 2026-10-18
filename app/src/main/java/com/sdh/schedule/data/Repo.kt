@@ -179,10 +179,25 @@ object Repo {
         return id
     }
 
-    /** 同一内容在去重窗口内是否已提示过 */
+    /**
+     * 同一内容在去重窗口内是否已提示过。
+     *
+     * 两步判断(参考社区里"通知→日历"这类 App 的做法):
+     *  ① 完全相同 —— 直接查库(快)
+     *  ② **规范化后相似** —— 同一条通知被反复推送时文本常有细微差别
+     *     (「发来1条消息」/「发来2条消息」、末尾表情等),只比完全相同会漏,于是重复建日程。
+     */
     fun isDuplicateText(sourceText: String): Boolean {
         val window = settings.dedupeWindowMinutes * 60_000L
-        return dao.hasRecentSuggestion(sourceText, System.currentTimeMillis() - window)
+        val since = System.currentTimeMillis() - window
+        if (dao.hasRecentSuggestion(sourceText, since)) return true
+        val norm = com.sdh.schedule.util.TextSimilarity.normalize(sourceText)
+        if (norm.length < 8) return false
+        return _suggestions.value.any { s ->
+            s.createdAt >= since &&
+                com.sdh.schedule.util.TextSimilarity.normalize(s.sourceText).length >= 8 &&
+                com.sdh.schedule.util.TextSimilarity.similar(norm, s.sourceText)
+        }
     }
 
     fun acceptSuggestion(id: Long): Long? {

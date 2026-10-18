@@ -82,6 +82,24 @@ fun main() {
         check("超长句不当成问题", fresh.isEmpty(), fresh.toString())
     }
 
+    // ---- 8. 文本相似度(通知去重用的)----
+    run {
+        val S = com.sdh.schedule.util.TextSimilarity
+        check("同一条通知仅条数不同 → 判为重复",
+            S.similar("26级电子信息2班发来1条消息", "26级电子信息2班发来2条消息"))
+        check("去掉标点后相同 → 判为重复",
+            S.similar("明天下午三点开组会。", "明天下午三点开组会!"))
+        check("末尾多表情 → 判为重复", S.similar("交实验报告", "交实验报告😀"))
+        check("内容完全不同 → 不重复",
+            !S.similar("明天下午三点开组会", "晚上七点去健身房"))
+        check("短句不轻易判重(避免「知道了」命中一切)",
+            !S.similar("知道了", "知道了这门课明天要考试请带好学生证"))
+        check("长度差太多不判重",
+            !S.similar("开会", "明天上午九点在行政楼三楼第二会议室开全体教职工大会"))
+        check("规范化去掉标点空格",
+            S.normalize("明天，下午 3:00 开会!") == "明天下午300开会")
+    }
+
     val out = File("result.txt")
     val header = "总计 ${pass + fail} 用例,通过 $pass,失败 $fail\n" + "=".repeat(60) + "\n"
     out.writeText(

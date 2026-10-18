@@ -1,4 +1,4 @@
-package com.sdh.schedule.alarm
+﻿package com.sdh.schedule.alarm
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -97,6 +97,23 @@ object ReminderScheduler {
                 // 没有精确闹钟权限时退化为不精确提醒(仍会响,只是时间可能有偏差)
                 am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, effective, pi)
                 Log.w(TAG, "无精确闹钟权限,已退化为不精确提醒: ${e.title}")
+            } else if (e.alarmReminder) {
+                // 闹钟类提醒:用 setAlarmClock —— 社区里做闹钟的 App(Alarmio 等)都用它。
+                // 它免疫 Doze、系统状态栏会显示闹钟图标、厂商省电策略也更难杀掉,
+                // 到点最准时(比 setExactAndAllowWhileIdle 更"硬")。
+                val showPi = android.app.PendingIntent.getActivity(
+                    context,
+                    (910000 + e.id).toInt(),
+                    android.content.Intent(context, AlarmActivity::class.java).apply {
+                        flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or
+                            android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        putExtra(AlarmActivity.EXTRA_EVENT_ID, e.id)
+                        putExtra(AlarmActivity.EXTRA_TITLE, e.title)
+                        putExtra(AlarmActivity.EXTRA_WHEN_TEXT, fmt(effective))
+                    },
+                    android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+                )
+                am.setAlarmClock(AlarmManager.AlarmClockInfo(effective, showPi), pi)
             } else {
                 am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, effective, pi)
             }
@@ -151,3 +168,4 @@ object ReminderScheduler {
         return "%d月%d日 %02d:%02d".format(ldt.monthValue, ldt.dayOfMonth, ldt.hour, ldt.minute)
     }
 }
+
