@@ -25,9 +25,18 @@ val Green = Color(0xFF30A46C)
 val Orange = Color(0xFFF5A524)
 
 // 日程色板(日历账户/分类颜色)
-val Palette = listOf(
-    Blue, Green, Orange, Danger, Color(0xFF8E4EC6), Color(0xFF0EA5E9), Color(0xFFEC4899)
-)
+//
+// ⚠️ 长度会影响课表/日程的自动配色:取色算法是 `hash(名字) % Palette.size`,
+// 所以色板越短,**不同课程撞色越多**(之前只有 7 色,15 门课几乎必然重复)。
+// 现在扩到 24 色:前 7 个保持原样(不改已有配色),后面按色相均分补齐 17 个。
+val Palette: List<Color> = buildList {
+    addAll(listOf(Blue, Green, Orange, Danger, Color(0xFF8E4EC6), Color(0xFF0EA5E9), Color(0xFFEC4899)))
+    for (i in 7 until 24) {
+        // 每 15° 一个色相。饱和/明度要接近前面 7 个主题色(都很鲜艳),
+        // 否则整片课表会显得发白(试过 S=0.52 太淡);卡片本身再用低透明度压成淡底。
+        add(Color.hsv((i * 15f) % 360f, 0.72f, 0.90f))
+    }
+}
 
 private val LightColors = lightColorScheme(
     primary = Blue,
