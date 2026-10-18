@@ -563,9 +563,15 @@ private fun OptionRow(title: String, value: String, onPick: (Int) -> Unit) {
 fun TimetableSettingsScreen(onBack: () -> Unit) {
     val settings = Repo.settings
     val revision by settings.revision.collectAsState()
-    var slotText by remember(revision) { mutableStateOf(settings.slotTimes) }
     val slots = remember(revision) { settings.slotList() }
     val startDate = remember(revision) { settings.semesterStartDate() }
+    var showEditSlots by remember { mutableStateOf(false) }
+
+    // 「编辑时间表」整页(参考同类课表 App:固定时长联动 + 起止都能改 + 添加节次)
+    if (showEditSlots) {
+        EditTimetableScreen(onBack = { showEditSlots = false })
+        return
+    }
 
     BackHandler { onBack() }
 
@@ -631,35 +637,29 @@ fun TimetableSettingsScreen(onBack: () -> Unit) {
             )
         }
 
-        GroupTitle("节次时间(每行一节,格式 08:00-08:45)")
+        GroupTitle("节次时间")
         SectionCard {
-            OutlinedTextField(
-                value = slotText,
-                onValueChange = { slotText = it },
-                modifier = Modifier.fillMaxWidth().padding(12.dp).height(160.dp),
-                shape = RoundedCornerShape(10.dp)
-            )
-            Text(
-                text = "当前共 ${slots.size} 节;" + slots.joinToString("  ") { (s, e) ->
-                    "%02d:%02d-%02d:%02d".format(s.hour, s.minute, e.hour, e.minute)
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-            Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.End) {
-                TextButton(
-                    onClick = { slotText = com.sdh.schedule.data.SettingsStore.DEFAULT_SLOT_TIMES }
-                ) { Text("恢复默认") }
-                Spacer(Modifier.width(8.dp))
-                TextButton(onClick = {
-                    settings.slotTimes = slotText
-                    Repo.rescheduleAll()
-                }) { Text("保存") }
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable { showEditSlots = true }
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("编辑时间表", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        "共 ${slots.size} 节 · " + slots.take(3).joinToString("  ") { (s, e) ->
+                            "%02d:%02d-%02d:%02d".format(s.hour, s.minute, e.hour, e.minute)
+                        } + " …",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Text("编辑", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
             }
         }
         Spacer(Modifier.height(40.dp))
     }
 }
+
 
 

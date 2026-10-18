@@ -1,4 +1,4 @@
-package com.sdh.schedule.data
+﻿package com.sdh.schedule.data
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -195,6 +195,21 @@ class SettingsStore(context: Context) {
         get() = str(K_SLOT_TIMES, DEFAULT_SLOT_TIMES)
         set(v) = edit { putString(K_SLOT_TIMES, v.trim()) }
 
+    /** 时间表名称(为将来"多套作息"留位,现在只有一套) */
+    var slotTimesName: String
+        get() = str(K_SLOT_NAME, "默认")
+        set(v) = edit { putString(K_SLOT_NAME, v.trim().ifBlank { "默认" }) }
+
+    /** 是否"固定上课时长":改了开始时间,结束时间自动 = 开始 + 时长 */
+    var slotFixedDuration: Boolean
+        get() = bool(K_SLOT_FIXED, true)
+        set(v) = edit { putBoolean(K_SLOT_FIXED, v) }
+
+    /** 每节课时长(分钟),配合"固定上课时长"用 */
+    var slotDurationMinutes: Int
+        get() = int(K_SLOT_DURATION, 45)
+        set(v) = edit { putInt(K_SLOT_DURATION, v.coerceIn(10, 180)) }
+
     /** 解析节次时间;为空或格式不对时回退默认 */
     fun slotList(): List<Pair<LocalTime, LocalTime>> {
         val list = slotTimes.split(',').mapNotNull { item ->
@@ -292,6 +307,9 @@ class SettingsStore(context: Context) {
         private const val K_REMIND_SOUND = "reminder_sound"
         private const val K_AI_REMIND = "ai_decide_reminder"
         private const val K_SEMESTER = "semester_start_epoch_day"
+        private const val K_SLOT_NAME = "slot_name"
+        private const val K_SLOT_FIXED = "slot_fixed"
+        private const val K_SLOT_DURATION = "slot_duration"
         private const val K_SLOT_TIMES = "slot_times"
         private const val K_COURSE_REMIND = "course_reminder_enabled"
         private const val K_COURSE_REMIND_MIN = "course_reminder_minutes"
@@ -308,4 +326,5 @@ class SettingsStore(context: Context) {
         private const val K_EDU_DESKTOP = "edu_desktop_mode"
     }
 }
+
 
