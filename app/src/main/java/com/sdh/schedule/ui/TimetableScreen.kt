@@ -1,4 +1,4 @@
-﻿@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 
 package com.sdh.schedule.ui
 
@@ -218,18 +218,17 @@ private fun CourseBlock(
     val color = courseColorOf(course)
     // 非本周:整体半透明(和 WakeUp 那种「非本周」效果一致,一眼能看出这周不用去上)
     //
-    // 配色对照 WakeUp:本周 = **满色彩色底 + 白色文字**;非本周 = 很淡的底 + 灰色文字。
-    // 文字色按背景亮度自动选(亮底用深灰、暗底用白),这样不管哪门课取到什么颜色都清晰。
-    // (之前试过"满色 + 同色系深色文字",对比度太差,已改)
+    // 配色三版演进(都上过真机):
+    //   ① 16% 淡底 + 同色浅字 → 整片发灰、看不清 ❌
+    //   ② 满色底 + 白字     → 太辣眼睛 ❌
+    //   ③ 现在:22% 淡底 + **同色系加深的文字** → 柔和又清楚 ✅
     val active = activeThisWeek
-    val bg = if (active) color else color.copy(alpha = 0.14f)
-    val onBg: androidx.compose.ui.graphics.Color = if (active) {
-        val lum = color.luminance()
-        if (lum > 0.55f) androidx.compose.ui.graphics.Color(0xFF1F2937)
-        else androidx.compose.ui.graphics.Color.White
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
+    val bg = color.copy(alpha = if (active) 0.22f else 0.08f)
+    val fg: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.lerp(
+        color,
+        androidx.compose.ui.graphics.Color.Black,
+        0.55f
+    )
     Surface(
         shape = RoundedCornerShape(6.dp),
         color = bg,
@@ -243,7 +242,7 @@ private fun CourseBlock(
                 text = course.name.ifBlank { "课程" },
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Medium,
-                color = if (active) onBg else onBg.copy(alpha = 0.75f),
+                color = fg.copy(alpha = if (active) 1f else 0.45f),
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
@@ -251,7 +250,7 @@ private fun CourseBlock(
                 Text(
                     text = "@" + course.location,
                     fontSize = 9.sp,
-                    color = if (active) onBg.copy(alpha = 0.85f) else onBg.copy(alpha = 0.6f),
+                    color = fg.copy(alpha = if (active) 0.75f else 0.35f),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -260,7 +259,7 @@ private fun CourseBlock(
                 Text(
                     text = "非本周",
                     fontSize = 8.sp,
-                    color = onBg.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                     maxLines = 1
                 )
             }
