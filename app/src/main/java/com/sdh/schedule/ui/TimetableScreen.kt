@@ -142,7 +142,7 @@ fun TimetableScreen(
             Row(modifier = Modifier.fillMaxWidth()) {
                 // 节次列
                 Column(modifier = Modifier.width(38.dp)) {
-                    slots.forEachIndexed { index, (start, _) ->
+                    slots.forEachIndexed { index, (start, end) ->
                         Box(
                             modifier = Modifier.height(CELL_HEIGHT.dp).fillMaxWidth(),
                             contentAlignment = Alignment.TopCenter
@@ -159,6 +159,14 @@ fun TimetableScreen(
                                     fontSize = 9.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                                // 最后一节额外标出「结束时间」,否则看着像课表只到 19:55
+                                if (index == slots.lastIndex) {
+                                    Text(
+                                        text = "%02d:%02d".format(end.hour, end.minute).take(5),
+                                        fontSize = 9.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                    )
+                                }
                             }
                         }
                     }
